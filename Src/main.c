@@ -49,8 +49,8 @@ DMA_HandleTypeDef hdma_i2c1_rx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-uint8_t seconds, minutes, hours, day, date, month, year;
-uint8_t sendData[7], receiveData[7];
+static uint8_t seconds, minutes, hours, day, date, month, year;
+static uint8_t sendData[7], receiveData[7];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -61,8 +61,8 @@ static void MX_I2C1_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-uint8_t DEC2BCD(uint8_t d);
-uint8_t BCD2DEC(uint8_t d);
+static uint8_t DEC2BCD(uint8_t d);
+static uint8_t BCD2DEC(uint8_t d);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -106,7 +106,7 @@ int main(void)
   while (1)
   {
   /* USER CODE END WHILE */
-	  HAL_I2C_Mem_Read_DMA(&hi2c1,DS3231_SLAVE_ADDRESS << 1,0,I2C_MEMADD_SIZE_8BIT,receiveData, 7);
+	  HAL_I2C_Mem_Read_DMA(&hi2c1,DS3231_SLAVE_ADDRESS <<1,0,I2C_MEMADD_SIZE_8BIT,receiveData, 7);
 	  HAL_Delay(200);
   /* USER CODE BEGIN 3 */
 
@@ -235,15 +235,21 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-uint8_t BCD2DEC(uint8_t d)
+static uint8_t BCD2DEC(uint8_t d)
 {
 	return (d>>4)*10 + (d&0x0f);
 }
 
-uint8_t DEC2BCD(uint8_t d)
+static uint8_t DEC2BCD(uint8_t d)
 {
 	return (d/10)<<4|(d%10);
 }
+//static uint8_t bcd2bin (uint8_t val) {
+//	return val - 6 * (val >> 4);
+//}
+//static uint8_t bin2bcd (uint8_t val) {
+//	return val + 6 * (val / 10);
+//}
 
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
 	if(hi2c->Instance == hi2c1.Instance) {
@@ -267,7 +273,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		sendData[4]=DEC2BCD(14);
 		sendData[5]=DEC2BCD(07);
 		sendData[6]=DEC2BCD(17);
-		HAL_I2C_Mem_Write_IT(&hi2c1,DS3231_SLAVE_ADDRESS<<1,0,I2C_MEMADD_SIZE_8BIT,sendData,7);
+		HAL_I2C_Mem_Write_IT(&hi2c1,DS3231_SLAVE_ADDRESS,0,I2C_MEMADD_SIZE_8BIT,sendData,7);
 	}
 }
 
