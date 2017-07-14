@@ -40,7 +40,7 @@
 #include "stm32f4xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-
+#define DS3231_SLAVE_ADDRESS 0x68
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -49,7 +49,8 @@ DMA_HandleTypeDef hdma_i2c1_rx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+uint8_t seconds, minutes, hours, day, date, month, year;
+uint8_t sendData[7], receiveData[7];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -60,7 +61,8 @@ static void MX_I2C1_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
+uint8_t DEC2BCD(uint8_t d);
+uint8_t BCD2DEC(uint8_t d);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -104,7 +106,8 @@ int main(void)
   while (1)
   {
   /* USER CODE END WHILE */
-
+	  HAL_I2C_Mem_Read_DMA(&hi2c1,DS3231_SLAVE_ADDRESS << 1,0,I2C_MEMADD_SIZE_8BIT,receiveData, 7);
+	  HAL_Delay(200);
   /* USER CODE BEGIN 3 */
 
   }
@@ -232,7 +235,28 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+uint8_t BCD2DEC(uint8_t d)
+{
+	return (d>>4)*10 + (d&0x0f);
+}
 
+uint8_t DEC2BCD(uint8_t d)
+{
+	return (d/10)<<4|(d%10);
+}
+void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
+	if(hi2c->Instance == hi2c1.Instance) {
+		seconds = BCD2DEC(receiveData[0]);
+		minutes = BCD2DEC(receiveData[1]);
+		hours = BCD2DEC(receiveData[2]);
+
+		day = BCD2DEC(receiveData[3]);
+		date = BCD2DEC(receiveData[4]);
+		month = BCD2DEC(receiveData[5]);
+		year = BCD2DEC(receiveData[6]);
+	}
+}
+//HAL_I2C_Mem_Write_IT(hi2c1,DS3231_SLAVE_ADDRESS,0,I2C_MEMADD_SIZE_8BIT,sendData,7);
 /* USER CODE END 4 */
 
 /**
