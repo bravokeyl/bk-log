@@ -49,8 +49,8 @@ DMA_HandleTypeDef hdma_i2c1_rx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-static uint8_t seconds, minutes, hours, day, date, month, year;
-static uint8_t sendData[7], receiveData[7];
+uint8_t seconds, minutes, hours, day, date, month, year;
+uint8_t sendData[7], receiveData[7];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
