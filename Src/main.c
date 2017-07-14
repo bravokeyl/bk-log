@@ -305,7 +305,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		sendData[4]=DEC2BCD(14);
 		sendData[5]=DEC2BCD(07);
 		sendData[6]=DEC2BCD(17);
-		HAL_I2C_Mem_Write_IT(&hi2c1,DS3231_SLAVE_ADDRESS,0,I2C_MEMADD_SIZE_8BIT,sendData,7);
+		HAL_I2C_Mem_Write_IT(&hi2c1,DS3231_SLAVE_ADDRESS<<1,0,I2C_MEMADD_SIZE_8BIT,sendData,7);
 	}
 }
 
