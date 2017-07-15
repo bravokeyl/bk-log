@@ -52,6 +52,7 @@
 
 /* USER CODE BEGIN Includes */
 #include <string.h>
+#include "lcd1602.h"
 #define DS3231_SLAVE_ADDRESS 0x68
 /* USER CODE END Includes */
 
@@ -85,6 +86,10 @@ static void MX_USART3_UART_Init(void);
 /* Private function prototypes -----------------------------------------------*/
 static uint8_t DEC2BCD(uint8_t d);
 static uint8_t BCD2DEC(uint8_t d);
+void LCD_LZ(uint8_t time) {
+	LCD_data_4bit('0' + time / 10);
+	LCD_data_4bit('0' + time % 10);
+}
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -123,6 +128,8 @@ int main(void)
   MX_USART3_UART_Init();
 
   /* USER CODE BEGIN 2 */
+  LCD_Init();
+  LCD_Cls();
   //  SD_state = BSP_SD_Init();
   //  if(SD_state != MSD_OK) {
   //  	  while(1);
@@ -138,6 +145,8 @@ int main(void)
 		  HAL_I2C_Mem_Read_DMA(&hi2c1,DS3231_SLAVE_ADDRESS <<1,0,I2C_MEMADD_SIZE_8BIT,receiveData, 7);
 		  HAL_Delay(200);
 		  sprintf(filename,"%02d-%02d-%d.csv",date,month,year);
+		  LCD_GotoXY(8,1);
+		  LCD_LZ(hours);
 		  HAL_UART_Transmit(&huart3,filename,strlen(filename),100);
 		  HAL_UART_Transmit(&huart3,"\n",2,100);
 		  fr = f_stat(filename, &fno);
@@ -317,17 +326,44 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct;
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOE, LCD_EN_Pin|LCD_D4_Pin|LCD_D5_Pin|LCD_D6_Pin 
+                          |LCD_D7_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOD, LCD_D0_Pin|LCD_D1_Pin|LCD_D2_Pin|LCD_D3_Pin 
+                          |LCD_RS_Pin|LCD_RW_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : LCD_EN_Pin LCD_D4_Pin LCD_D5_Pin LCD_D6_Pin 
+                           LCD_D7_Pin */
+  GPIO_InitStruct.Pin = LCD_EN_Pin|LCD_D4_Pin|LCD_D5_Pin|LCD_D6_Pin 
+                          |LCD_D7_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
   /*Configure GPIO pin : PA0 */
   GPIO_InitStruct.Pin = GPIO_PIN_0;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : LCD_D0_Pin LCD_D1_Pin LCD_D2_Pin LCD_D3_Pin 
+                           LCD_RS_Pin LCD_RW_Pin */
+  GPIO_InitStruct.Pin = LCD_D0_Pin|LCD_D1_Pin|LCD_D2_Pin|LCD_D3_Pin 
+                          |LCD_RS_Pin|LCD_RW_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);

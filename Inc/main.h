@@ -56,6 +56,29 @@
 
 /* Private define ------------------------------------------------------------*/
 
+#define LCD_EN_Pin GPIO_PIN_3
+#define LCD_EN_GPIO_Port GPIOE
+#define LCD_D4_Pin GPIO_PIN_7
+#define LCD_D4_GPIO_Port GPIOE
+#define LCD_D5_Pin GPIO_PIN_8
+#define LCD_D5_GPIO_Port GPIOE
+#define LCD_D6_Pin GPIO_PIN_9
+#define LCD_D6_GPIO_Port GPIOE
+#define LCD_D7_Pin GPIO_PIN_10
+#define LCD_D7_GPIO_Port GPIOE
+#define LCD_D0_Pin GPIO_PIN_14
+#define LCD_D0_GPIO_Port GPIOD
+#define LCD_D1_Pin GPIO_PIN_15
+#define LCD_D1_GPIO_Port GPIOD
+#define LCD_D2_Pin GPIO_PIN_0
+#define LCD_D2_GPIO_Port GPIOD
+#define LCD_D3_Pin GPIO_PIN_1
+#define LCD_D3_GPIO_Port GPIOD
+#define LCD_RS_Pin GPIO_PIN_4
+#define LCD_RS_GPIO_Port GPIOD
+#define LCD_RW_Pin GPIO_PIN_5
+#define LCD_RW_GPIO_Port GPIOD
+
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
