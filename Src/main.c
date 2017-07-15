@@ -123,6 +123,10 @@ int main(void)
   MX_USART3_UART_Init();
 
   /* USER CODE BEGIN 2 */
+  //  SD_state = BSP_SD_Init();
+  //  if(SD_state != MSD_OK) {
+  //  	  while(1);
+  //  }
   if(retSD == 0){
 	  if(f_mount(&SDFatFS, (TCHAR const*)SD_Path, 0) != FR_OK) {
 		  _Error_Handler(__FILE__, __LINE__);
@@ -133,8 +137,7 @@ int main(void)
 		  uint8_t headerRow = 1;
 		  HAL_I2C_Mem_Read_DMA(&hi2c1,DS3231_SLAVE_ADDRESS <<1,0,I2C_MEMADD_SIZE_8BIT,receiveData, 7);
 		  HAL_Delay(200);
-		  sprintf(filename,"%d-%d-%d.csv",date,month,year);
-		  printf("CONSOLE ON USART3\r\n");
+		  sprintf(filename,"%02d-%02d-%d.csv",date,month,year);
 		  HAL_UART_Transmit(&huart3,filename,strlen(filename),100);
 		  HAL_UART_Transmit(&huart3,"\n",2,100);
 		  fr = f_stat(filename, &fno);
@@ -153,7 +156,7 @@ int main(void)
 			  while(1){
 				  HAL_I2C_Mem_Read_DMA(&hi2c1,DS3231_SLAVE_ADDRESS <<1,0,I2C_MEMADD_SIZE_8BIT,receiveData, 7);
 				  HAL_Delay(1000);
-				  sprintf(timestamp,"%d-%d-%d#%d:%d:%d",date,month,year,hours,minutes,seconds+1);
+				  sprintf(timestamp,"%02d-%02d-%d#%02d:%02d:%02d",date,month,year,hours,minutes,seconds+1);
 				  sprintf(buf,"%s,%d,%d,%d,%d,%d,%d\n", timestamp,date,month,year,hours,minutes,seconds+1);
 				  sdRes =f_write(&logFile, buf, strlen(buf), (void *)&byteswritten);
 				  HAL_UART_Transmit(&huart3,buf,strlen(buf),100);
