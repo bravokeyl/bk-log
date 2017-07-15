@@ -68,6 +68,7 @@ uint8_t sendData[7], receiveData[7];
 FATFS SDFatFS;
 FIL logFile;
 FRESULT sdRes;
+char filename[200];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -126,11 +127,14 @@ int main(void)
 		  FILINFO fno;
 		  char buf[256];
 		  uint8_t headerRow = 1;
-		  fr = f_stat("bk.log", &fno);
+		  HAL_I2C_Mem_Read_DMA(&hi2c1,DS3231_SLAVE_ADDRESS <<1,0,I2C_MEMADD_SIZE_8BIT,receiveData, 7);
+		  HAL_Delay(200);
+		  sprintf(filename,"%d-%d-%dZ.csv",year,month,date);
+		  fr = f_stat(filename, &fno);
 		  if(fr == FR_OK){
 			  headerRow = 0;
 		  }
-		  if(f_open(&logFile,"bk.log",FA_OPEN_ALWAYS | FA_WRITE | FA_READ) != FR_OK){
+		  if(f_open(&logFile,filename,FA_OPEN_ALWAYS | FA_WRITE | FA_READ) != FR_OK){
 			  _Error_Handler(__FILE__, __LINE__);
 		  } else{
 			  if(headerRow == 1) {
@@ -142,7 +146,7 @@ int main(void)
 			  while(1){
 				  HAL_I2C_Mem_Read_DMA(&hi2c1,DS3231_SLAVE_ADDRESS <<1,0,I2C_MEMADD_SIZE_8BIT,receiveData, 7);
 				  HAL_Delay(1000);
-				  sprintf(buf,"%d,%d,%d,%d,%d,%d\n", seconds, minutes, hours, date, month, year);
+				  sprintf(buf,"%d,%d,%d,%d,%d,%d\n", seconds+1, minutes, hours, date, month, year);
 				  sdRes =f_write(&logFile, buf, strlen(buf), (void *)&byteswritten);
 				  f_sync(&logFile);
 			  }
