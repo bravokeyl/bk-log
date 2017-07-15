@@ -129,7 +129,7 @@ int main(void)
 		  uint8_t headerRow = 1;
 		  HAL_I2C_Mem_Read_DMA(&hi2c1,DS3231_SLAVE_ADDRESS <<1,0,I2C_MEMADD_SIZE_8BIT,receiveData, 7);
 		  HAL_Delay(200);
-		  sprintf(filename,"%d%d%d%d.csv",year,month,date,minutes);
+		  sprintf(filename,"%d-%d-%d.csv",year,month,minutes);
 		  fr = f_stat(filename, &fno);
 		  if(fr == FR_OK){
 			  headerRow = 0;
