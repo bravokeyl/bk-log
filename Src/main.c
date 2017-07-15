@@ -133,7 +133,7 @@ int main(void)
 		  uint8_t headerRow = 1;
 		  HAL_I2C_Mem_Read_DMA(&hi2c1,DS3231_SLAVE_ADDRESS <<1,0,I2C_MEMADD_SIZE_8BIT,receiveData, 7);
 		  HAL_Delay(200);
-		  sprintf(filename,"%d-%d-%d.csv",year,month,minutes);
+		  sprintf(filename,"%d-%d-%d.csv",date,month,year);
 		  HAL_UART_Transmit(&huart3,filename,strlen(filename),100);
 		  HAL_UART_Transmit(&huart3,"\n",2,100);
 		  fr = f_stat(filename, &fno);
