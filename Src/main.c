@@ -140,7 +140,7 @@ int main(void)
 		  if(fr == FR_OK){
 			  headerRow = 0;
 		  }
-		  if(f_open(&logFile,(uint8_t) filename,FA_OPEN_ALWAYS | FA_WRITE | FA_READ) != FR_OK){
+		  if(f_open(&logFile,filename,FA_OPEN_ALWAYS | FA_WRITE | FA_READ) != FR_OK){
 			  _Error_Handler(__FILE__, __LINE__);
 		  } else{
 			  if(headerRow == 1) {
