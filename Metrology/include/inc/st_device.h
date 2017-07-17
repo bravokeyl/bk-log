@@ -33,7 +33,7 @@
 #include "stm32f407xx.h"  
    
 /* Communication */
-#define USART_SPEED		    115200
+#define USART_SPEED		    9600
 #define USART_TIMEOUT		    10
 #define SPI_STPM_SPEED              32
 #define SPI_TIMEOUT		    10

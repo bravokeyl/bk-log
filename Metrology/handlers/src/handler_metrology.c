@@ -26,7 +26,7 @@
 #include "metroTask.h"
 #include "nvram.h"
 #include "handler_nvram.h"
-
+#include "main.h"
 #include <string.h>
 
 /** @addtogroup GENERIC
@@ -82,7 +82,7 @@ const nvmLeg_t metroDefaultNvm = {
   PLTF_STM32_METER, // crc
   {                 // config
     0x00000005,
-    0x00462616
+    0x00000038
   },
   {                 // data1[19] STPM (Config for CT)
     0x040000a0,
@@ -101,8 +101,8 @@ const nvmLeg_t metroDefaultNvm = {
     0x03270327,
     0x00000000,
     0x00000000,
-    0x00000000,
-    0x00000000,
+    0x0207776F,//0x00000000,
+    0x02000000,//0x00000000,
     0x00004007,
   },
   {                 // data2[19] STPM (Config for CT)
@@ -190,33 +190,34 @@ const nvmLeg_t metroDefaultNvm = {
 
 #ifdef UART_XFER_STPM3X /* UART MODE */   
 
-const STPM_Com_port_t STPM_com_port[4] ={  
+const STPM_Com_port_t STPM_com_port[4] ={
   {
-  USART3,    //USART used by device 1
-  GPIOE,     //CS used by device 1
-  GPIO_PIN_14,
-  GPIOE,     //SYN used by device 1
-  GPIO_PIN_15,
-  GPIOE,     //EN used by device 1
-  GPIO_PIN_13
-  },
+    USART6,     //USART used by device 2
+    SCS_A_GPIO_Port,      //CS used by device 2
+    SCS_A_Pin,
+    SYN_A_GPIO_Port,      //SYN used by device 2
+    SYN_A_Pin,
+    EN_A_GPIO_Port,      //EN used by device 2
+    EN_A_Pin
+    },
   {
-  USART6,     //USART used by device 2
-  GPIOC,      //CS used by device 2
-  GPIO_PIN_8,
-  GPIOC,      //SYN used by device 2
-  GPIO_PIN_9,
-  GPIOA,      //EN used by device 2
-  GPIO_PIN_8
+  USART6,    //USART used by device 1
+  SCS_C_GPIO_Port,     //CS used by device 1
+  SCS_C_Pin,
+  SYN_C_GPIO_Port,     //SYN used by device 1
+  SYN_C_Pin,
+  EN_C_GPIO_Port,     //EN used by device 1
+  EN_C_Pin
   },
+
   {
   USART2,    //USART used by device 3
-  GPIOA,     //CS used by device 3
-  GPIO_PIN_0,
-  GPIOA,     //SYN used by device 3
-  GPIO_PIN_1,
-  GPIOC,     //EN used by device 3
-  GPIO_PIN_3
+  SCS_B_GPIO_Port,      //CS used by device 3
+  SCS_B_Pin,
+  SYN_B_GPIO_Port,      //SYN used by device 3
+  SYN_B_Pin,
+  EN_B_GPIO_Port,      //EN used by device 3
+  EN_B_Pin
   },
   {
   USART2,    //USART used by device 4
@@ -497,7 +498,7 @@ static void MET_ApplyNvmConfig(void)
     {  
       /* write configuration into STPM */
       Metro_Write_Block_to_Device(EXT1, 0, 19, metroData.nvm->data1);
-  
+      //Metro_Set_IRQ_Mask_for_STPM_device(EXT1,0x0200);
       /* Read back configuration to show the read block access */
       Metro_Read_Block_From_Device(EXT1, 0, 19, (uint32_t *)&Tab_METRO_internal_Devices_Config[EXT1].metro_stpm_reg);    
     }
