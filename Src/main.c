@@ -485,7 +485,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   if (htim==&htim2)
   {
     metroData.metroInactiveTime += 1;
-    tick++;
   }
 
 
