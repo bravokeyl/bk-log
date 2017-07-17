@@ -138,6 +138,13 @@ int main(void)
   MX_TIM2_Init();
 
   /* USER CODE BEGIN 2 */
+  METRO_Init();
+  /* Start Timer Channel1 in interrupt mode*/
+	if (HAL_TIM_Base_Start_IT(&htim2) != HAL_OK)
+	{
+	  // Starting Error
+		_Error_Handler(__FILE__, __LINE__);
+	}
   //  SD_state = BSP_SD_Init();
   //  if(SD_state != MSD_OK) {
   //  	  while(1);
