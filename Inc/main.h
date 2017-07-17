@@ -60,7 +60,38 @@
 #define BK_LED_RED_GPIO_Port GPIOD
 
 /* USER CODE BEGIN Private defines */
+#define SCS_B_Pin GPIO_PIN_0
+#define SCS_B_GPIO_Port GPIOA
 
+#define SYN_B_Pin GPIO_PIN_1
+#define SYN_B_GPIO_Port GPIOA
+
+#define EN_B_Pin GPIO_PIN_3
+#define EN_B_GPIO_Port GPIOC
+
+#define EN_C_Pin GPIO_PIN_13
+#define EN_C_GPIO_Port GPIOE
+
+#define SCS_C_Pin GPIO_PIN_14
+#define SCS_C_GPIO_Port GPIOE
+
+#define SYN_C_Pin GPIO_PIN_15
+#define SYN_C_GPIO_Port GPIOE
+
+#define LED5_Pin GPIO_PIN_14
+#define LED5_GPIO_Port GPIOD
+
+#define LED6_Pin GPIO_PIN_15
+#define LED6_GPIO_Port GPIOD
+
+#define EN_A_Pin GPIO_PIN_0
+#define EN_A_GPIO_Port GPIOB
+
+#define SCS_A_Pin GPIO_PIN_1
+#define SCS_A_GPIO_Port GPIOB
+
+#define SYN_A_Pin GPIO_PIN_2
+#define SYN_A_GPIO_Port GPIOB
 /* USER CODE END Private defines */
 
 void _Error_Handler(char *, int);
