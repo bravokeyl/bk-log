@@ -212,7 +212,7 @@ void Metro_HAL_init_device(METRO_NB_Device_t in_Metro_Device_Id)
     /* set good CS with good EXT chip */
     Metro_HAL_CSS_EXT_Device(in_Metro_Device_Id,GPIO_PIN_SET);
     Metro_HAL_WaitMicroSecond(1000); 
-  
+
     /* Reset EXT Chip */
     /* 3 pulses on SYN */
     Metro_HAL_STPM_SYN_reset_3_pulses(in_Metro_Device_Id);
@@ -3519,7 +3519,7 @@ void Metro_HAL_Clear_Status_for_STPM_device(METRO_NB_Device_t in_Metro_Device_Id
   * @param[in]   in_Metro_Device_Id (device ID), HOST or EXT1 to EXT4
   * @param[in]   in_Metro_int_Channel (Channel ID), Channel 1 or 2 ( according to device )
   * @param[in]   u16 in_Metro_SAG_Threshold (Register value) ( under 10 bits)
-  * @param[in]   u16 in_Metro_SAG_detect_time (Register value in 8µs LSB) (under 14 bits)
+  * @param[in]   u16 in_Metro_SAG_detect_time (Register value in 8ï¿½s LSB) (under 14 bits)
   * @param[out]  None
   * @retval      None
   */
@@ -3718,7 +3718,7 @@ void Metro_HAL_Set_C_SWELL_Config(METRO_NB_Device_t in_Metro_Device_Id,METRO_int
   * @param[in]   in_Metro_Device_Id (device ID), HOST or EXT1 to EXT4
   * @param[in]   in_Metro_int_Channel (Channel ID), Channel 1 or 2 ( according to device )
   * @param[out]   u16 * out_p_Metro_SAG_Threshold (Register value) ( under 10 bits)
-  * @param[out]   u16 * out_p_Metro_SAG_detect_time (Register value in 8µs LSB) (under 14 bits)
+  * @param[out]   u16 * out_p_Metro_SAG_detect_time (Register value in 8ï¿½s LSB) (under 14 bits)
   * @param[out]  None
   * @retval      None
   */
@@ -4326,7 +4326,7 @@ static void Metro_HAL_WaitMicroSecond(uint32_t time)
   int i;
   uint32_t tmp;
 #define ACCURACY               8
-#define ADJ_RATIO              104
+#define ADJ_RATIO              239//104
 #define OVERHEAD               3
   if (SystemCoreClock == 96000000)
   {

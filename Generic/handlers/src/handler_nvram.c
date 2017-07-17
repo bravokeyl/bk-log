@@ -22,7 +22,7 @@
 #include "st_device.h"
 #include "handler_nvram.h"
 #include "handler_eeprom.h"
-#include "mnsh_rx.h"
+//#include "mnsh_rx.h"
 
 #include <string.h>
 

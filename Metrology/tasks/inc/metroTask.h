@@ -47,7 +47,7 @@
 
 #define NVRAM_SIZE_LEG           512
 
-#define METRO_TIMER              (1) // 10ms
+#define METRO_TIMER              (1) // 500ms  steps
 
 
 /*******************************************************************************

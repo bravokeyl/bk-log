@@ -22,7 +22,7 @@
 #include "metroTask.h"
 #include "metrology.h"
 #include "handler_metrology.h"
-#include "mnsh_tx.h"
+//#include "mnsh_tx.h"
 #include "string.h"
 
 #include <stdint.h>
@@ -122,168 +122,169 @@ void METRO_Init()
     if(Tab_METRO_internal_Devices_Config[i].device != 0)
     {
       /* Set default latch device type inside Metro struct for Ext chips */
-      Metro_Register_Latch_device_Config_type((METRO_NB_Device_t)i, LATCH_SYN_SCS);
+      Metro_Register_Latch_device_Config_type((METRO_NB_Device_t)i, LATCH_SW);
+      //Metro_HAL_Set_Latch_device_type((METRO_NB_Device_t)i, LATCH_SYN_SCS);
     }
   }
 }
 
-void METRO_Task()
-{
-  uint32_t data[2];
-
-  switch (mnshVars.msg.id)
-  {
-    case X_METRO_FACTOR:
-      {
-        /* Get Payload pointer from Payload[0] */
-        /* *pData      = Channel Id  */
-        /* *(pData+1)  = Power factor for channel  */
-        /* *(pData+2)  = Energy Factor for channel  */
-
-        uint32_t * pData = (uint32_t*)(*mnshVars.msg.payload);
-
-        /* Set power, nrj, voltage , current  factors depending of channel requested */
-        Metro_Set_Hardware_Factors((METRO_Channel_t)*pData,*(pData+1),*(pData+2), *(pData+3),*(pData+4));
-      }
-      METRO_UnlockMnsh();
-      break;
-    case X_METRO_RST:
-      {
-        /* Get Payload pointer from Payload[0] */
-        /* (*pData) = 1 : HW_SYN_reset, 2: SW_Reset   */
-        uint32_t * pData = (uint32_t*)(*mnshVars.msg.payload);
-         
-        if ((uint8_t)(*pData)==RESET_SYN_SCS)
-         {
-           Metro_Config_Reset(RESET_SYN_SCS);
-         }
-         else if((uint8_t)(*pData)==RESET_SW)
-         {
-           Metro_Config_Reset(RESET_SW);
-         }
-      }
-      METRO_UnlockMnsh();
-      break;
-    case X_METRO_DEVICE:
-      METRO_HandleMetroDevice((uint32_t*)(*mnshVars.msg.payload));
-      METRO_UnlockMnsh();
-      break;
-    case X_METRO_METRO:
-      METRO_HandleMetroMetro((uint32_t*)(*mnshVars.msg.payload));
-      METRO_UnlockMnsh();
-      break;
-    case X_METRO_CAL:
-      METRO_HandleMetroCal((uint32_t*)(*mnshVars.msg.payload));
-      METRO_UnlockMnsh();
-      break;
-    case X_METRO_IRQ:
-      METRO_HandleMetroIRQ((uint32_t*)(*mnshVars.msg.payload));
-      METRO_UnlockMnsh();
-      break;
-     case X_METRO_SAG_SWELL:
-      METRO_HandleMetroSagSwell((uint32_t*)(*mnshVars.msg.payload));
-      METRO_UnlockMnsh();
-      break;
-    case X_METRO_INIT:
-      Metro_Init();
-#ifdef UART_XFER_STPM3X /* UART MODE */   
-    /* Change UART speed for STPM communication between Host and EXT1*/
-      Metro_UartSpeed(USART_SPEED); 
-#endif
-      METRO_UnlockMnsh();
-      break;
-    case X_METRO_SW_RELEASE:
-      {
-        data[0] = Metro_Get_SW_Rev();
-        MNSH_Printf("Metrology Version :  %08x\n",data[0]);
-      }
-      METRO_UnlockMnsh();
-      break;
-    case X_METRO_PING:
-      {
-        if (Metro_Ping_Metro() == 0)
-        {
-           /* Ping is OK, send 0x5A to MNSH print console */
-           data[0] = 0x5A;
-        }
-        else
-        {
-           /* Ping is KO, send 0xFF to MNSH print console */
-           data[0] = 0xFF;
-        }
-
-        MNSH_Printf("Metrology PING :  0x%08x\n",data[0]);
-      }
-      METRO_UnlockMnsh();
-      break;
-    case X_METRO_RD_REG:
-      {
-        int i;
-        /* Max Buffer size =  50*U32 MAX ->  GUI or Metrology Application get Config or Status  group not all registers in one read*/
-        uint32_t buffer[70];
-        /* Get Payload pointer from Payload[0] */
-        /* Payload  DATA  : [0] = Device Id, [1] = @ , [2] Size */
-        /* (*pData) = DeviceID, (u8)(*(pData+1)) = Offset @ , (u8)(*(pData+2)) = Nb U32 registers to read */
-        uint32_t * pData = (uint32_t*)(*mnshVars.msg.payload);
-        strcpy(text, "Metrology REG OFFSET 0x%04x: 0x%08x\n");
-        
-        /* Read the Number of register at Offset address inside the device Requested */
-        if ((*pData < (NB_MAX_DEVICE))&&(Tab_METRO_internal_Devices_Config[*pData].device != 0))
-          Metro_Read_Block_From_Device((METRO_NB_Device_t)(*pData), (uint8_t)(*(pData+1)), (uint8_t)(*(pData+2)), buffer);
-        
-        /* Print inside MNSH  each 32 bit regsiter read from Device  : One line for each register */
-        for (i=0; i< (*(pData+2)); i++)
-        {
-          /* if Device Id is an EXT chip tha address is based on U16 and not on U32 offset */
-          data[0] = (uint8_t)(*(pData+1) + (i<<1));          
-          data[1] = buffer[i];
-
-          MNSH_Printf(text,data[0],data[1]);       
-        }
-      }
-      METRO_UnlockMnsh();
-      break;
-    case X_METRO_WR_REG:
-      {
-        /* Get Payload pointer from Payload[0] */
-        /* Payload  DATA  : [0] = Device Id, [1] = @ , [2] Size  [3 to size] Data to write*/
-        /* (*pData) = DeviceID, (u8)(*(pData+1)) = Offset @ , (u8)(*(pData+2)) = Nb U32 registers to write, (u32)(*(pData+3) pointer of Data to write) */
-        uint32_t * pData = (uint32_t*)(*mnshVars.msg.payload);
-
-        /* Write the Number of register at Offset address inside the device Requested */
-        if ((*pData < (NB_MAX_DEVICE))&&(Tab_METRO_internal_Devices_Config[*pData].device != 0))
-          Metro_Write_Block_to_Device((METRO_NB_Device_t)(*pData), (uint8_t)(*(pData+1)), (uint8_t)(*(pData+2)), pData+3);
-
-        mnshVars.msg.id = (msgId_t)0;
-        mnshVars.lockRXNE = 0;
-
-      }
-      METRO_UnlockMnsh();
-      break;
-    case X_METRO_SETUP:
-      METRO_HandleMetroSetup((uint32_t*)(*mnshVars.msg.payload));
-      METRO_UnlockMnsh();
-      break;
-    case X_METRO_CLOSE:
-      METRO_UnlockMnsh();
-      break;
-    case X_METRO_CONFIG_INIT:
-      MET_RestoreDefaultConfig(mnshVars.msg.payload[0]);
-      METRO_UnlockMnsh();
-      break;
-    case X_METRO_CONFIG_REST:
-      MET_RestoreConfigFromNVM();
-      METRO_UnlockMnsh();
-      break;
-    case X_METRO_CONFIG_SAVE:
-      MET_SaveConfigToNVM();
-      METRO_UnlockMnsh();
-      break;
-    case X_METRO_PROD_TEST_PARAM:
-      METRO_UnlockMnsh();
-      break;
-    }
-}
+//void METRO_Task()
+//{
+//  uint32_t data[2];
+//
+//  switch (mnshVars.msg.id)
+//  {
+//    case X_METRO_FACTOR:
+//      {
+//        /* Get Payload pointer from Payload[0] */
+//        /* *pData      = Channel Id  */
+//        /* *(pData+1)  = Power factor for channel  */
+//        /* *(pData+2)  = Energy Factor for channel  */
+//
+//        uint32_t * pData = (uint32_t*)(*mnshVars.msg.payload);
+//
+//        /* Set power, nrj, voltage , current  factors depending of channel requested */
+//        Metro_Set_Hardware_Factors((METRO_Channel_t)*pData,*(pData+1),*(pData+2), *(pData+3),*(pData+4));
+//      }
+//      METRO_UnlockMnsh();
+//      break;
+//    case X_METRO_RST:
+//      {
+//        /* Get Payload pointer from Payload[0] */
+//        /* (*pData) = 1 : HW_SYN_reset, 2: SW_Reset   */
+//        uint32_t * pData = (uint32_t*)(*mnshVars.msg.payload);
+//
+//        if ((uint8_t)(*pData)==RESET_SYN_SCS)
+//         {
+//           Metro_Config_Reset(RESET_SYN_SCS);
+//         }
+//         else if((uint8_t)(*pData)==RESET_SW)
+//         {
+//           Metro_Config_Reset(RESET_SW);
+//         }
+//      }
+//      METRO_UnlockMnsh();
+//      break;
+//    case X_METRO_DEVICE:
+//      METRO_HandleMetroDevice((uint32_t*)(*mnshVars.msg.payload));
+//      METRO_UnlockMnsh();
+//      break;
+//    case X_METRO_METRO:
+//      METRO_HandleMetroMetro((uint32_t*)(*mnshVars.msg.payload));
+//      METRO_UnlockMnsh();
+//      break;
+//    case X_METRO_CAL:
+//      METRO_HandleMetroCal((uint32_t*)(*mnshVars.msg.payload));
+//      METRO_UnlockMnsh();
+//      break;
+//    case X_METRO_IRQ:
+//      METRO_HandleMetroIRQ((uint32_t*)(*mnshVars.msg.payload));
+//      METRO_UnlockMnsh();
+//      break;
+//     case X_METRO_SAG_SWELL:
+//      METRO_HandleMetroSagSwell((uint32_t*)(*mnshVars.msg.payload));
+//      METRO_UnlockMnsh();
+//      break;
+//    case X_METRO_INIT:
+//      Metro_Init();
+//#ifdef UART_XFER_STPM3X /* UART MODE */
+//    /* Change UART speed for STPM communication between Host and EXT1*/
+//      Metro_UartSpeed(USART_SPEED);
+//#endif
+//      METRO_UnlockMnsh();
+//      break;
+//    case X_METRO_SW_RELEASE:
+//      {
+//        data[0] = Metro_Get_SW_Rev();
+//        MNSH_Printf("Metrology Version :  %08x\n",data[0]);
+//      }
+//      METRO_UnlockMnsh();
+//      break;
+//    case X_METRO_PING:
+//      {
+//        if (Metro_Ping_Metro() == 0)
+//        {
+//           /* Ping is OK, send 0x5A to MNSH print console */
+//           data[0] = 0x5A;
+//        }
+//        else
+//        {
+//           /* Ping is KO, send 0xFF to MNSH print console */
+//           data[0] = 0xFF;
+//        }
+//
+//        MNSH_Printf("Metrology PING :  0x%08x\n",data[0]);
+//      }
+//      METRO_UnlockMnsh();
+//      break;
+//    case X_METRO_RD_REG:
+//      {
+//        int i;
+//        /* Max Buffer size =  50*U32 MAX ->  GUI or Metrology Application get Config or Status  group not all registers in one read*/
+//        uint32_t buffer[70];
+//        /* Get Payload pointer from Payload[0] */
+//        /* Payload  DATA  : [0] = Device Id, [1] = @ , [2] Size */
+//        /* (*pData) = DeviceID, (u8)(*(pData+1)) = Offset @ , (u8)(*(pData+2)) = Nb U32 registers to read */
+//        uint32_t * pData = (uint32_t*)(*mnshVars.msg.payload);
+//        strcpy(text, "Metrology REG OFFSET 0x%04x: 0x%08x\n");
+//
+//        /* Read the Number of register at Offset address inside the device Requested */
+//        if ((*pData < (NB_MAX_DEVICE))&&(Tab_METRO_internal_Devices_Config[*pData].device != 0))
+//          Metro_Read_Block_From_Device((METRO_NB_Device_t)(*pData), (uint8_t)(*(pData+1)), (uint8_t)(*(pData+2)), buffer);
+//
+//        /* Print inside MNSH  each 32 bit regsiter read from Device  : One line for each register */
+//        for (i=0; i< (*(pData+2)); i++)
+//        {
+//          /* if Device Id is an EXT chip tha address is based on U16 and not on U32 offset */
+//          data[0] = (uint8_t)(*(pData+1) + (i<<1));
+//          data[1] = buffer[i];
+//
+//          MNSH_Printf(text,data[0],data[1]);
+//        }
+//      }
+//      METRO_UnlockMnsh();
+//      break;
+//    case X_METRO_WR_REG:
+//      {
+//        /* Get Payload pointer from Payload[0] */
+//        /* Payload  DATA  : [0] = Device Id, [1] = @ , [2] Size  [3 to size] Data to write*/
+//        /* (*pData) = DeviceID, (u8)(*(pData+1)) = Offset @ , (u8)(*(pData+2)) = Nb U32 registers to write, (u32)(*(pData+3) pointer of Data to write) */
+//        uint32_t * pData = (uint32_t*)(*mnshVars.msg.payload);
+//
+//        /* Write the Number of register at Offset address inside the device Requested */
+//        if ((*pData < (NB_MAX_DEVICE))&&(Tab_METRO_internal_Devices_Config[*pData].device != 0))
+//          Metro_Write_Block_to_Device((METRO_NB_Device_t)(*pData), (uint8_t)(*(pData+1)), (uint8_t)(*(pData+2)), pData+3);
+//
+//        mnshVars.msg.id = (msgId_t)0;
+//        mnshVars.lockRXNE = 0;
+//
+//      }
+//      METRO_UnlockMnsh();
+//      break;
+//    case X_METRO_SETUP:
+//      METRO_HandleMetroSetup((uint32_t*)(*mnshVars.msg.payload));
+//      METRO_UnlockMnsh();
+//      break;
+//    case X_METRO_CLOSE:
+//      METRO_UnlockMnsh();
+//      break;
+//    case X_METRO_CONFIG_INIT:
+//      MET_RestoreDefaultConfig(mnshVars.msg.payload[0]);
+//      METRO_UnlockMnsh();
+//      break;
+//    case X_METRO_CONFIG_REST:
+//      MET_RestoreConfigFromNVM();
+//      METRO_UnlockMnsh();
+//      break;
+//    case X_METRO_CONFIG_SAVE:
+//      MET_SaveConfigToNVM();
+//      METRO_UnlockMnsh();
+//      break;
+//    case X_METRO_PROD_TEST_PARAM:
+//      METRO_UnlockMnsh();
+//      break;
+//    }
+//}
   
 /**
   * @brief  This function implements the Metrology latch device
@@ -299,7 +300,7 @@ void METRO_Latch_Measures()
   {
     if(Tab_METRO_internal_Devices_Config[i].device != 0)
     {
-      Metro_Set_Latch_device_type(i,LATCH_SYN_SCS);
+      Metro_Set_Latch_device_type(i,LATCH_SW);
     }
   }
 }
@@ -329,11 +330,11 @@ void METRO_Get_Measures()
   * @retval None
   */
 
-static void METRO_UnlockMnsh(void)
-{
-  mnshVars.lockRXNE = 0;
-  mnshVars.msg.id = X_MNSH_UNLOCKRX_EVENT;
-}
+//static void METRO_UnlockMnsh(void)
+//{
+//  mnshVars.lockRXNE = 0;
+//  mnshVars.msg.id = X_MNSH_UNLOCKRX_EVENT;
+//}
 
 /**
   * @brief  This function updates the Metro measurements values
