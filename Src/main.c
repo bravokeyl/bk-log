@@ -159,7 +159,7 @@ int main(void)
 		  uint8_t headerRow = 1;
 		  HAL_I2C_Mem_Read_DMA(&hi2c1,DS3231_SLAVE_ADDRESS <<1,0,I2C_MEMADD_SIZE_8BIT,receiveData, 7);
 		  HAL_Delay(200);
-		  sprintf(filename,"%02d-%02d-%d.csv",date,minutes,seconds);
+		  sprintf(filename,"%02d-%02d-%d.csv",date,month,year);
 		  HAL_UART_Transmit(&huart3,filename,strlen(filename),100);
 		  HAL_UART_Transmit(&huart3,"\n",2,100);
 		  fr = f_stat(filename, &fno);
@@ -170,7 +170,7 @@ int main(void)
 			  _Error_Handler(__FILE__, __LINE__);
 		  } else{
 			  if(headerRow == 1) {
-				  sprintf(buf,"Timestamp,Channel,VRMS,IRMS\n");
+				  sprintf(buf,"Timestamp,Channel,VRMS,IRMS,ENACT,POWACT,ENAPP,ENREA,POWAPP,POWREA,FREQ\n");
 				  sdRes = f_write(&logFile, buf, strlen(buf),(void *)&byteswritten);
 			  }
 			  f_lseek(&logFile,f_size(&logFile));
@@ -178,6 +178,12 @@ int main(void)
 			  while(1){
 				  uint32_t RMS_V1=0,RMS_V2=0;
 				  uint32_t RMS_I1=0,RMS_I2=0;
+				  int32_t Period1=0, Period2=0;
+				  int32_t POW_ACT1,POW_REACT1,POW_APP1;
+				  int32_t POW_ACT2,POW_REACT2,POW_APP2;
+				  int32_t EN_ACT1,EN_REACT1,EN_APP1;
+				  int32_t EN_ACT2,EN_REACT2,EN_APP2;
+
 				  HAL_I2C_Mem_Read_DMA(&hi2c1,DS3231_SLAVE_ADDRESS <<1,0,I2C_MEMADD_SIZE_8BIT,receiveData, 7);
 				  HAL_Delay(20);
 				  sprintf(timestamp,"%02d-%02d-%d#%02d:%02d:%02d",date,month,year,hours,minutes,seconds+1);
@@ -192,9 +198,30 @@ int main(void)
 
 					Metro_Read_RMS(1,&RMS_V1,&RMS_I1,1);
 					Metro_Read_RMS(2,&RMS_V2,&RMS_I2,1);
-					sprintf(buf,"%s,1,%d,%d\n", timestamp,RMS_V1,RMS_I1);
+
+					Period1=Metro_Read_Period(1);
+				    Period2=Metro_Read_Period(2);
+
+				    EN_ACT1=Metro_Read_energy(1,E_W_ACTIVE);
+				    EN_REACT1=Metro_Read_energy(1,E_REACTIVE);
+				    EN_APP1=Metro_Read_energy(1,E_APPARENT);
+
+				    POW_ACT1=Metro_Read_Power(1, W_ACTIVE);
+				    POW_REACT1=Metro_Read_Power(1, REACTIVE);
+				    POW_APP1=Metro_Read_Power(1, APPARENT_RMS);
+
+				    EN_ACT2=Metro_Read_energy(2,E_W_ACTIVE);
+					EN_REACT2=Metro_Read_energy(2,E_REACTIVE);
+					EN_APP2=Metro_Read_energy(2,E_APPARENT);
+
+					POW_ACT2=Metro_Read_Power(2, W_ACTIVE);
+					POW_REACT2=Metro_Read_Power(2, REACTIVE);
+					POW_APP2=Metro_Read_Power(2, APPARENT_RMS);
+
+					sprintf(buf,"%s,1,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", timestamp,RMS_V1,RMS_I1,EN_ACT1,POW_ACT1,EN_APP1,EN_REACT1,POW_APP1,POW_REACT1,Period1);
 					sdRes =f_write(&logFile, buf, strlen(buf), (void *)&byteswritten);
-					sprintf(buf,"%s,2,%d,%d\n", timestamp,RMS_V2,RMS_I2);
+					HAL_UART_Transmit(&huart3,buf,strlen(buf),100);
+					sprintf(buf,"%s,2,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", timestamp,RMS_V2,RMS_I2,EN_ACT2,POW_ACT2,EN_APP2,EN_REACT2,POW_APP2,POW_REACT2,Period2);
 					sdRes =f_write(&logFile, buf, strlen(buf), (void *)&byteswritten);
 				    HAL_UART_Transmit(&huart3,buf,strlen(buf),100);
 				    f_sync(&logFile);
