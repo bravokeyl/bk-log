@@ -159,7 +159,7 @@ int main(void)
 		  uint8_t headerRow = 1;
 		  HAL_I2C_Mem_Read_DMA(&hi2c1,DS3231_SLAVE_ADDRESS <<1,0,I2C_MEMADD_SIZE_8BIT,receiveData, 7);
 		  HAL_Delay(200);
-		  sprintf(filename,"%02d-%02d-%d.csv",date,month,year);
+		  sprintf(filename,"%02d-%02d-%d.csv",date,minutes,seconds);
 		  HAL_UART_Transmit(&huart3,filename,strlen(filename),100);
 		  HAL_UART_Transmit(&huart3,"\n",2,100);
 		  fr = f_stat(filename, &fno);
@@ -170,19 +170,35 @@ int main(void)
 			  _Error_Handler(__FILE__, __LINE__);
 		  } else{
 			  if(headerRow == 1) {
-				  sprintf(buf,"Timestamp,Seconds,Minutes,Hours,Date,Month,Year\n");
+				  sprintf(buf,"Timestamp,Channel,VRMS,IRMS\n");
 				  sdRes = f_write(&logFile, buf, strlen(buf),(void *)&byteswritten);
 			  }
 			  f_lseek(&logFile,f_size(&logFile));
 
 			  while(1){
+				  uint32_t RMS_V1=0,RMS_V2=0;
+				  uint32_t RMS_I1=0,RMS_I2=0;
 				  HAL_I2C_Mem_Read_DMA(&hi2c1,DS3231_SLAVE_ADDRESS <<1,0,I2C_MEMADD_SIZE_8BIT,receiveData, 7);
-				  HAL_Delay(1000);
+				  HAL_Delay(20);
 				  sprintf(timestamp,"%02d-%02d-%d#%02d:%02d:%02d",date,month,year,hours,minutes,seconds+1);
-				  sprintf(buf,"%s,%d,%d,%d,%d,%d,%d\n", timestamp,date,month,year,hours,minutes,seconds+1);
-				  sdRes =f_write(&logFile, buf, strlen(buf), (void *)&byteswritten);
-				  HAL_UART_Transmit(&huart3,buf,strlen(buf),100);
-				  f_sync(&logFile);
+
+				  if (metroData.metroInactiveTime >= METRO_TIMER) {
+					metroData.metroInactiveTime = 0;
+					HAL_GPIO_TogglePin(LED2_GPIO_type, LED2_GPIO_pin);
+					METRO_Latch_Measures();
+					HAL_Delay(20);
+					METRO_Get_Measures();
+					METRO_UpdateData();
+
+					Metro_Read_RMS(1,&RMS_V1,&RMS_I1,1);
+					Metro_Read_RMS(2,&RMS_V2,&RMS_I2,1);
+					sprintf(buf,"%s,1,%d,%d\n", timestamp,RMS_V1,RMS_I1);
+					sdRes =f_write(&logFile, buf, strlen(buf), (void *)&byteswritten);
+					sprintf(buf,"%s,2,%d,%d\n", timestamp,RMS_V2,RMS_I2);
+					sdRes =f_write(&logFile, buf, strlen(buf), (void *)&byteswritten);
+				    HAL_UART_Transmit(&huart3,buf,strlen(buf),100);
+				    f_sync(&logFile);
+				  } //metroData.metroInactiveTime
 			  }
 		  }
 	  }
@@ -510,7 +526,7 @@ void _Error_Handler(char * file, int line)
   while(1)
   {
 	  HAL_GPIO_TogglePin(BK_LED_RED_GPIO_Port,BK_LED_RED_Pin);
-	  HAL_Delay(1000);
+	  HAL_Delay(3000);
   }
   /* USER CODE END Error_Handler_Debug */ 
 }
