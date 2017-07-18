@@ -176,12 +176,12 @@ int main(void)
 			  f_lseek(&logFile,f_size(&logFile));
 
 			  while(1){
-				  uint32_t RMS_V1=0,RMS_V2=0;
-				  uint32_t RMS_I1=0,RMS_I2=0;
-				  int32_t Period1=0, Period2=0;
-				  int32_t POW_ACT1,POW_REACT1,POW_APP1;
+				  uint32_t RMS_V=0,RMS_V2=0;
+				  uint32_t RMS_I=0,RMS_I2=0;
+				  int32_t Period=0, Period2=0;
+				  int32_t POW_ACT,POW_REACT,POW_APP;
 				  int32_t POW_ACT2,POW_REACT2,POW_APP2;
-				  int32_t EN_ACT1,EN_REACT1,EN_APP1;
+				  int32_t EN_ACT,EN_REACT,EN_APP;
 				  int32_t EN_ACT2,EN_REACT2,EN_APP2;
 
 				  HAL_I2C_Mem_Read_DMA(&hi2c1,DS3231_SLAVE_ADDRESS <<1,0,I2C_MEMADD_SIZE_8BIT,receiveData, 7);
@@ -196,35 +196,59 @@ int main(void)
 					METRO_Get_Measures();
 					METRO_UpdateData();
 
-					Metro_Read_RMS(1,&RMS_V1,&RMS_I1,1);
-					Metro_Read_RMS(2,&RMS_V2,&RMS_I2,1);
+					for(BYTE d=1;d<7;d++){
+						Metro_Read_RMS(d,&RMS_V,&RMS_I,1);
+						Period = Metro_Read_Period(d);
+						EN_ACT = Metro_Read_energy(d,E_W_ACTIVE);
+						EN_REACT = Metro_Read_energy(d,E_REACTIVE);
+						EN_APP = Metro_Read_energy(d,E_APPARENT);
 
-					Period1=Metro_Read_Period(1);
-				    Period2=Metro_Read_Period(2);
+						POW_ACT = Metro_Read_Power(d, W_ACTIVE);
+						POW_REACT = Metro_Read_Power(d, REACTIVE);
+						POW_APP = Metro_Read_Power(d, APPARENT_RMS);
 
-				    EN_ACT1=Metro_Read_energy(1,E_W_ACTIVE);
-				    EN_REACT1=Metro_Read_energy(1,E_REACTIVE);
-				    EN_APP1=Metro_Read_energy(1,E_APPARENT);
+						sprintf(buf,"%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%l\n",
+								timestamp,d,
+								RMS_V,RMS_I,
+								EN_ACT,POW_ACT,
+								EN_APP,EN_REACT,
+								POW_APP,POW_REACT,
+								Period);
+						sdRes =f_write(&logFile, buf, strlen(buf), (void *)&byteswritten);
+						HAL_UART_Transmit(&huart3,buf,strlen(buf),100);
+						if(d != 2){
+							HAL_Delay(100);
+						}
+					}
+					//Metro_Read_RMS(1,&RMS_V1,&RMS_I1,1);
+					//Metro_Read_RMS(2,&RMS_V2,&RMS_I2,1);
 
-				    POW_ACT1=Metro_Read_Power(1, W_ACTIVE);
-				    POW_REACT1=Metro_Read_Power(1, REACTIVE);
-				    POW_APP1=Metro_Read_Power(1, APPARENT_RMS);
+					//Period1=Metro_Read_Period(1);
+				    //Period2=Metro_Read_Period(2);
 
-				    EN_ACT2=Metro_Read_energy(2,E_W_ACTIVE);
-					EN_REACT2=Metro_Read_energy(2,E_REACTIVE);
-					EN_APP2=Metro_Read_energy(2,E_APPARENT);
+//				    EN_ACT1=Metro_Read_energy(1,E_W_ACTIVE);
+//				    EN_REACT1=Metro_Read_energy(1,E_REACTIVE);
+//				    EN_APP1=Metro_Read_energy(1,E_APPARENT);
+//
+//				    POW_ACT1=Metro_Read_Power(1, W_ACTIVE);
+//				    POW_REACT1=Metro_Read_Power(1, REACTIVE);
+//				    POW_APP1=Metro_Read_Power(1, APPARENT_RMS);
+//
+//				    EN_ACT2=Metro_Read_energy(2,E_W_ACTIVE);
+//					EN_REACT2=Metro_Read_energy(2,E_REACTIVE);
+//					EN_APP2=Metro_Read_energy(2,E_APPARENT);
+//
+//					POW_ACT2=Metro_Read_Power(2, W_ACTIVE);
+//					POW_REACT2=Metro_Read_Power(2, REACTIVE);
+//					POW_APP2=Metro_Read_Power(2, APPARENT_RMS);
 
-					POW_ACT2=Metro_Read_Power(2, W_ACTIVE);
-					POW_REACT2=Metro_Read_Power(2, REACTIVE);
-					POW_APP2=Metro_Read_Power(2, APPARENT_RMS);
-
-					sprintf(buf,"%s,1,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", timestamp,RMS_V1,RMS_I1,EN_ACT1,POW_ACT1,EN_APP1,EN_REACT1,POW_APP1,POW_REACT1,Period1);
-					sdRes =f_write(&logFile, buf, strlen(buf), (void *)&byteswritten);
-					HAL_UART_Transmit(&huart3,buf,strlen(buf),100);
-					HAL_Delay(100);
-					sprintf(buf,"%s,2,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", timestamp,RMS_V2,RMS_I2,EN_ACT2,POW_ACT2,EN_APP2,EN_REACT2,POW_APP2,POW_REACT2,Period2);
-					sdRes =f_write(&logFile, buf, strlen(buf), (void *)&byteswritten);
-				    HAL_UART_Transmit(&huart3,buf,strlen(buf),100);
+//					sprintf(buf,"%s,1,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", timestamp,RMS_V1,RMS_I1,EN_ACT1,POW_ACT1,EN_APP1,EN_REACT1,POW_APP1,POW_REACT1,Period1);
+//					sdRes =f_write(&logFile, buf, strlen(buf), (void *)&byteswritten);
+//					HAL_UART_Transmit(&huart3,buf,strlen(buf),100);
+//					HAL_Delay(100);
+//					sprintf(buf,"%s,2,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", timestamp,RMS_V2,RMS_I2,EN_ACT2,POW_ACT2,EN_APP2,EN_REACT2,POW_APP2,POW_REACT2,Period2);
+//					sdRes =f_write(&logFile, buf, strlen(buf), (void *)&byteswritten);
+//				    HAL_UART_Transmit(&huart3,buf,strlen(buf),100);
 				    f_sync(&logFile);
 				  } //metroData.metroInactiveTime
 			  }
