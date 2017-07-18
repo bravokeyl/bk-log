@@ -62,8 +62,6 @@ DMA_HandleTypeDef hdma_i2c1_rx;
 
 SD_HandleTypeDef hsd;
 
-TIM_HandleTypeDef htim2;
-
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
@@ -90,7 +88,6 @@ static void MX_USART3_UART_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART6_UART_Init(void);
-static void MX_TIM2_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -135,7 +132,6 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   MX_USART6_UART_Init();
-  MX_TIM2_Init();
 
   /* USER CODE BEGIN 2 */
   METRO_Init();
@@ -333,27 +329,6 @@ static void MX_SDIO_SD_Init(void)
   hsd.Init.BusWide = SDIO_BUS_WIDE_1B;
   hsd.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
   hsd.Init.ClockDiv = 0;
-
-}
-
-/* TIM2 init function */
-static void MX_TIM2_Init(void)
-{
-
-	uwPrescalerValue = (uint32_t)(SystemCoreClock / 10000) - 1;
-
-    /* Set TIMx instance */
-    htim2.Instance = TIM2;
-
-    htim2.Init.Period            = 2500 - 1;
-    htim2.Init.Prescaler         = uwPrescalerValue;
-    htim2.Init.ClockDivision     = 0;
-    htim2.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim2.Init.RepetitionCounter = 0;
-  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
-  {
-	_Error_Handler(__FILE__, __LINE__);
-  }
 
 }
 
