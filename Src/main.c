@@ -221,6 +221,7 @@ int main(void)
 					sprintf(buf,"%s,1,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", timestamp,RMS_V1,RMS_I1,EN_ACT1,POW_ACT1,EN_APP1,EN_REACT1,POW_APP1,POW_REACT1,Period1);
 					sdRes =f_write(&logFile, buf, strlen(buf), (void *)&byteswritten);
 					HAL_UART_Transmit(&huart3,buf,strlen(buf),100);
+					HAL_Delay(100);
 					sprintf(buf,"%s,2,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", timestamp,RMS_V2,RMS_I2,EN_ACT2,POW_ACT2,EN_APP2,EN_REACT2,POW_APP2,POW_REACT2,Period2);
 					sdRes =f_write(&logFile, buf, strlen(buf), (void *)&byteswritten);
 				    HAL_UART_Transmit(&huart3,buf,strlen(buf),100);
