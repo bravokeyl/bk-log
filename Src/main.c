@@ -136,11 +136,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
   METRO_Init();
   /* Start Timer Channel1 in interrupt mode*/
-	if (HAL_TIM_Base_Start_IT(&htim2) != HAL_OK)
-	{
-	  // Starting Error
-		_Error_Handler(__FILE__, __LINE__);
-	}
   //  SD_state = BSP_SD_Init();
   //  if(SD_state != MSD_OK) {
   //  	  while(1);
@@ -505,15 +500,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		sendData[6]=DEC2BCD(17);
 		HAL_I2C_Mem_Write_IT(&hi2c1,DS3231_SLAVE_ADDRESS<<1,0,I2C_MEMADD_SIZE_8BIT,sendData,7);
 	}
-}
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  if (htim==&htim2)
-  {
-    metroData.metroInactiveTime += 1;
-  }
-
-
 }
 /* USER CODE END 4 */
 
