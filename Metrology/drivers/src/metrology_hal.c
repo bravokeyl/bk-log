@@ -4329,12 +4329,12 @@ static void Metro_HAL_WaitMicroSecond(uint32_t time)
 #define ADJ_RATIO              239//104
 #define OVERHEAD               3
   if (SystemCoreClock == 168000000){
-		tmp = time * ((7<<ACCURACY)*ADJ_RATIO/100);
-		tmp >>= ACCURACY;
+	tmp = time * ((7<<ACCURACY)*ADJ_RATIO/100);
+	tmp >>= ACCURACY;
   }
   else if(SystemCoreClock == 144000000){
-		tmp = time * ((6<<ACCURACY)*ADJ_RATIO/100);
-		tmp >>= ACCURACY;
+	tmp = time * ((6<<ACCURACY)*ADJ_RATIO/100);
+	tmp >>= ACCURACY;
   }
   else if (SystemCoreClock == 96000000)
   {
