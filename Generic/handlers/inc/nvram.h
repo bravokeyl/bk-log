@@ -79,9 +79,9 @@ typedef struct {
   uint32_t       data2[21]; 
   uint32_t       data3[21]; 
   uint32_t       data4[21]; 
-  uint32_t       powerFact[4];
-  uint32_t       voltageFact[4];
-  uint32_t       currentFact[4];
+  uint32_t       powerFact[8];
+  uint32_t       voltageFact[8];
+  uint32_t       currentFact[8];
 } nvmLeg_t;
 
 
