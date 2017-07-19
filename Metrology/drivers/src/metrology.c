@@ -97,6 +97,18 @@ static METRO_NB_Device_t Metro_Get_device_from_Channel(METRO_Channel_t in_Metro_
   case (CHANNEL_4):
       Channel_Mask = CHANNEL_MASK_CONF_CHANNEL_4;
       break;
+  case (CHANNEL_5):
+      Channel_Mask = CHANNEL_MASK_CONF_CHANNEL_5;
+      break;
+  case (CHANNEL_6):
+	  Channel_Mask = CHANNEL_MASK_CONF_CHANNEL_6;
+	  break;
+  case (CHANNEL_7):
+	  Channel_Mask = CHANNEL_MASK_CONF_CHANNEL_7;
+	  break;
+  case (CHANNEL_8):
+	  Channel_Mask = CHANNEL_MASK_CONF_CHANNEL_8;
+	  break;
   }
 
   /* loop inside all devices configuration to get the device according to the channel requested  */
@@ -111,10 +123,14 @@ static METRO_NB_Device_t Metro_Get_device_from_Channel(METRO_Channel_t in_Metro_
 }
 
 /**
+  * Changed Latest
   * @brief  Get device corresponding to Channel
-* @param[in]   in_Metro_Channel : Channel ID : Channel 1 to 4
-* @param[in]   in_Metro_device : Device ID    : Host or EXT1 to 4
-* @retval : METRO_internal_Channel_t : device mapped
+  * Be careful, Device 1 is only in charge of Channel 1 and 2; Device 2: channel 3 and 4;
+  * All device type is STPM34
+  * Device 3: channel 5 and 6; Device 4: channel 7 and 8;
+  * @param[in]   in_Metro_Channel : Channel ID : Channel 1 to 8
+  * @param[in]   in_Metro_device : Device ID    : Host or EXT1 to 4
+  * @retval : METRO_internal_Channel_t : device mapped
   */
 static METRO_internal_Channel_t  Metro_Get_Internal_channel(METRO_Channel_t in_Metro_Channel, METRO_NB_Device_t in_Metro_device)
 {
@@ -130,115 +146,35 @@ static METRO_internal_Channel_t  Metro_Get_Internal_channel(METRO_Channel_t in_M
 
     /* it is an external chip */
     case (EXT1):
-    {
-      switch(Tab_METRO_internal_Devices_Config[EXT1].device)
-      {
-        case (STPM32):
-        {
-        if ((in_Metro_Channel == CHANNEL_1)||
-            (in_Metro_Channel == CHANNEL_2))
-          {
-          return INT_CHANNEL_1;
-          }                 
-        break;
-        }      
-        case (STPM33):
-        {
-          if (in_Metro_Channel == CHANNEL_1)
-          {
-            return INT_CHANNEL_1;
-          }                 
-          else if (in_Metro_Channel == CHANNEL_2)
-          {
-            return CHANNEL_TAMPER;
-          }     
-        break;
-        }
-        case (STPM34):
-        {
-          if (in_Metro_Channel == CHANNEL_1)
-          {
-            return INT_CHANNEL_1;
-          }                 
-          else if (in_Metro_Channel == CHANNEL_2)
-          {
-            return INT_CHANNEL_2;
-          }     
-        break;
-        }
-      }
-    }
+		if (in_Metro_Channel == CHANNEL_1) {
+			return INT_CHANNEL_1;
+		} else if (in_Metro_Channel == CHANNEL_2) {
+			return INT_CHANNEL_2;
+		}
+		break;
     /* it is an external chip */
     case (EXT2):
-    {
-      switch(Tab_METRO_internal_Devices_Config[EXT2].device)
-      {
-        case (STPM32):
-        {
-        if ((in_Metro_Channel == CHANNEL_2)||
-            (in_Metro_Channel == CHANNEL_3))
-          {
-          return INT_CHANNEL_1;
-          }                         
-        break;        
-        }       
-        case (STPM33):
-        {
-          if (Tab_METRO_internal_Devices_Config[EXT1].device == STPM34)
-          {
-            if (in_Metro_Channel == CHANNEL_3)
-            {
-              return INT_CHANNEL_1;
-            }                 
-            else if (in_Metro_Channel == CHANNEL_4)
-            {
-              return CHANNEL_TAMPER;
-            }     
-          }
-          else
-          {
-            if (in_Metro_Channel == CHANNEL_2)
-            {
-              return INT_CHANNEL_1;
-            }                 
-            else if (in_Metro_Channel == CHANNEL_3)
-            {
-              return CHANNEL_TAMPER;
-            }     
-          }
-        break;
-        }
-      }
-    }
-    /* it is an external chip */
-    case (EXT3):
-    {
-      switch(Tab_METRO_internal_Devices_Config[EXT3].device)
-      {
-        case (STPM32):
-        {
-        if ((in_Metro_Channel == CHANNEL_3)||
-            (in_Metro_Channel == CHANNEL_4))
-          {
-          return INT_CHANNEL_1;
-          }                 
-        }
-        break;
-        case (STPM33):
-        {
-          if (in_Metro_Channel == CHANNEL_3)
-          {
-            return INT_CHANNEL_1;
-          }                 
-          else if (in_Metro_Channel == CHANNEL_4)
-          {
-            return CHANNEL_TAMPER;
-          }     
-        break;
-        }
-      }
-    }
-
+		if (in_Metro_Channel == CHANNEL_3) {
+			return INT_CHANNEL_1;
+		} else if (in_Metro_Channel == CHANNEL_4) {
+			return INT_CHANNEL_2;
+		}
+		break;
+	/* it is an external chip */
+	case (EXT3):
+		if (in_Metro_Channel == CHANNEL_5) {
+			return INT_CHANNEL_1;
+		} else if (in_Metro_Channel == CHANNEL_6) {
+			return INT_CHANNEL_2;
+		}
+		break;
+	case (EXT4):
+		if (in_Metro_Channel == CHANNEL_7) {
+			return INT_CHANNEL_1;
+		} else if (in_Metro_Channel == CHANNEL_8) {
+			return INT_CHANNEL_2;
+		}
+		break;
   }
   return INT_NONE_CHANNEL;
 }
@@ -351,7 +287,8 @@ uint32_t Metro_Get_SW_Rev(void)
 
 
 /**
-  * @brief  set metrology Config
+  * @brief  set metrology Config. Changed Latest. Remove STPM type field.
+  * We assume that all devices are  STPM34. And if CH masks is 0, we set STPM type to 0, otherwise it is STPM34 (8)
   * @param[in]   in_stpm_config : STPM  topology config
   * @retval u8
   */
@@ -365,9 +302,9 @@ uint32_t Metro_Get_SW_Rev(void)
          |---------------------|-------------------|-------------------|----------------------|
          |     STPM EXT4       |     STPM EXT3     |     STPM EXT2     |     STPM EXT1        |
          |---------------------|-------------------|-------------------|----------------------|
-         |    u4   |     u4    |   u4    |   u4    |     u4  |     u4  |      u4   |  u4      |
+         |    u4   |     u4    |   u4    |   u4    |
          |---------|-----------|--------------------------------------------------------------|
-         |CH masks | STPM type |CH masks |STPM type|CH masks |STPM type|  CH masks |STPM type |
+         |CH masks |CH masks |CH masks |CH masks |
          |---------|-----------|--------------------------------------------------------------|
 
         STPM CFG EXTx (u8):
@@ -379,45 +316,64 @@ uint32_t Metro_Get_SW_Rev(void)
             4 : Channel 3 affected
             8 : Channel 4 affected
 
-        LSB u4 :  STPM type : 6 to 8
+        LSB u4 :  STPM type : 8
             0 : No STPM
-            6 : STPM32
-            7 : STPM33
             8 : STPM34
 
         EX : STPM EXT 1: One STPM34 with Channels 2 and 3 affected on it
-        LSB u4 = 8 (STPM34)
         MSB u4 = 6 ( 4:Channel 3 + 2:Channel 2)
 
-        STPM CONFIG : U32 = 0x00000068
+        STPM CONFIG : U32 = 0x00000006
 
         +------------------------------------------------------------------------------------+*/
 
 /* set metrology Config  */
 uint8_t Metro_Setup(uint32_t in_host_config,uint32_t in_stpm_config)
 {
-     /* Get Device type and channels config  for Host and  fill the table  -> Tab[0] is the Host*/
-   Tab_METRO_internal_Devices_Config[HOST].device = (METRO_Device_t)(in_host_config&0x0000000F);
-   Tab_METRO_internal_Devices_Config[HOST].channels_mask = (uint8_t)((in_host_config&0x000000F0)>>4);
+	/* Get Device type and channels config  for Host and  fill the table  -> Tab[0] is the Host*/
+	Tab_METRO_internal_Devices_Config[HOST].device =
+			(METRO_Device_t) (in_host_config & 0x0000000F);
+	Tab_METRO_internal_Devices_Config[HOST].channels_mask =
+			(uint8_t) ((in_host_config & 0x000000F0) >> 4);
 
-   /* Get STPM devices types and channels config  for each STPM , fill the table -> tab [1] to tab [4] for Ext1 to EXT4 STPM*/
-   Tab_METRO_internal_Devices_Config[EXT1].device   = (METRO_Device_t)(in_stpm_config&0x0000000F);
-   Tab_METRO_internal_Devices_Config[EXT1].channels_mask = (uint8_t)(((in_stpm_config)&0x000000F0)>>4);
+	/* Get STPM devices types and channels config  for each STPM , fill the table -> tab [1] to tab [4] for Ext1 to EXT4 STPM*/
+	Tab_METRO_internal_Devices_Config[EXT1].channels_mask =
+			(uint8_t) (0x000000C0);
+	if (Tab_METRO_internal_Devices_Config[EXT1].channels_mask == 0) {
+		Tab_METRO_internal_Devices_Config[EXT1].device = Device_NONE;
+	} else {
+		Tab_METRO_internal_Devices_Config[EXT1].device = STPM34;
+	}
 
-   Tab_METRO_internal_Devices_Config[EXT2].device = (METRO_Device_t)(((in_stpm_config)&0x00000F00)>>8);
-   Tab_METRO_internal_Devices_Config[EXT2].channels_mask = (uint8_t)(((in_stpm_config)&0x0000F000)>>12);
+	Tab_METRO_internal_Devices_Config[EXT2].channels_mask =
+			(uint8_t) (0x0000000C);
+	if (Tab_METRO_internal_Devices_Config[EXT2].channels_mask == 0) {
+		Tab_METRO_internal_Devices_Config[EXT2].device = Device_NONE;
+	} else {
+		Tab_METRO_internal_Devices_Config[EXT2].device = STPM34;
+	}
 
-   Tab_METRO_internal_Devices_Config[EXT3].device = (METRO_Device_t)(((in_stpm_config)&0x000F0000)>>16);
-   Tab_METRO_internal_Devices_Config[EXT3].channels_mask = (uint8_t)(((in_stpm_config)&0x00F00000)>>20);
+	Tab_METRO_internal_Devices_Config[EXT3].channels_mask =
+			(uint8_t) (0x00000030);
+	if (Tab_METRO_internal_Devices_Config[EXT3].channels_mask == 0) {
+		Tab_METRO_internal_Devices_Config[EXT3].device = Device_NONE;
+	} else {
+		Tab_METRO_internal_Devices_Config[EXT3].device = STPM34;
+	}
 
-   Tab_METRO_internal_Devices_Config[EXT4].device = (METRO_Device_t)(((in_stpm_config)&0x0F000000)>>24);
-   Tab_METRO_internal_Devices_Config[EXT4].channels_mask = (uint8_t)(((in_stpm_config)&0xF0000000)>>28);
+	Tab_METRO_internal_Devices_Config[EXT4].channels_mask =
+			(uint8_t) (0x00000000);
+	if (Tab_METRO_internal_Devices_Config[EXT4].channels_mask == 0) {
+		Tab_METRO_internal_Devices_Config[EXT4].device = Device_NONE;
+	} else {
+		Tab_METRO_internal_Devices_Config[EXT4].device = STPM34;
+	}
 
-  /* Send Config to HAL */
-  Metro_HAL_Setup((METRO_Device_Config_t *) &Tab_METRO_internal_Devices_Config);
+	/* Send Config to HAL */
+	Metro_HAL_Setup(
+			(METRO_Device_Config_t *) &Tab_METRO_internal_Devices_Config);
 
-  return 0;
-
+	return 0;
 }
 
 /**
@@ -426,27 +382,41 @@ uint8_t Metro_Setup(uint32_t in_host_config,uint32_t in_stpm_config)
   * @retval u8
   */
 /* set metrology Config  */
-uint8_t Metro_Get_Setup(uint32_t * out_p_host_config,uint32_t * out_p_stpm_config)
-{
-   *out_p_host_config = (uint32_t)Tab_METRO_internal_Devices_Config[HOST].device;
-   *out_p_host_config |= (uint32_t)(Tab_METRO_internal_Devices_Config[HOST].channels_mask<<4);
+uint8_t Metro_Get_Setup(uint32_t * out_p_host_config,
+		uint32_t * out_p_stpm_config) {
+	*out_p_host_config =
+			(uint32_t) Tab_METRO_internal_Devices_Config[HOST].device;
+	*out_p_host_config |=
+			(uint32_t) (Tab_METRO_internal_Devices_Config[HOST].channels_mask
+					<< 4);
 
-   /* Get STPM devices types and channels config  for each STPM , for Ext1 to EXT4 STPM*/
-   *out_p_stpm_config  = (uint32_t)Tab_METRO_internal_Devices_Config[EXT1].device;
-   *out_p_stpm_config |= (uint32_t)(Tab_METRO_internal_Devices_Config[EXT1].channels_mask<<4);
+	/* Get STPM devices types and channels config  for each STPM , for Ext1 to EXT4 STPM*/
+	*out_p_stpm_config =
+			(uint32_t) Tab_METRO_internal_Devices_Config[EXT1].device;
+	*out_p_stpm_config |=
+			(uint32_t) (Tab_METRO_internal_Devices_Config[EXT1].channels_mask
+					<< 4);
 
-   *out_p_stpm_config |= (uint32_t)(Tab_METRO_internal_Devices_Config[EXT2].device<<8);
-   *out_p_stpm_config |= (uint32_t)(Tab_METRO_internal_Devices_Config[EXT2].channels_mask<<12);
+	*out_p_stpm_config |=
+			(uint32_t) (Tab_METRO_internal_Devices_Config[EXT2].device << 8);
+	*out_p_stpm_config |=
+			(uint32_t) (Tab_METRO_internal_Devices_Config[EXT2].channels_mask
+					<< 12);
 
-   *out_p_stpm_config |= (uint32_t)(Tab_METRO_internal_Devices_Config[EXT3].device<<16);
-   *out_p_stpm_config |= (uint32_t)(Tab_METRO_internal_Devices_Config[EXT3].channels_mask<<20);
+	*out_p_stpm_config |=
+			(uint32_t) (Tab_METRO_internal_Devices_Config[EXT3].device << 16);
+	*out_p_stpm_config |=
+			(uint32_t) (Tab_METRO_internal_Devices_Config[EXT3].channels_mask
+					<< 20);
 
-   *out_p_stpm_config |= (uint32_t)(Tab_METRO_internal_Devices_Config[EXT4].device<<24);
-   *out_p_stpm_config |= (uint32_t)(Tab_METRO_internal_Devices_Config[EXT4].channels_mask<<28);
+	*out_p_stpm_config |=
+			(uint32_t) (Tab_METRO_internal_Devices_Config[EXT4].device << 24);
+	*out_p_stpm_config |=
+			(uint32_t) (Tab_METRO_internal_Devices_Config[EXT4].channels_mask
+					<< 28);
 
-  return 0;
+	return 0;
 }
-
 
 
 /**
@@ -763,7 +733,7 @@ METRO_Vref_t Metro_Get_Vref(METRO_Channel_t in_Metro_Channel)
   * @param[in]   in_Metro_TC_Value ( 3 LSB bits used among u8)
   
   Table for comet (TCO is the  LSB bit):                 
-  TC0	TC1	TC2	VBG (V)	        TC_VBG (ppm/°C)
+  TC0	TC1	TC2	VBG (V)	        TC_VBG (ppm/ï¿½C)
   0	0	0	1.183	        -50           in_Metro_TC_Value = 0
   0	0	1	1.193	        -25           in_Metro_TC_Value = 4
   0	1	0	1.202	        0             in_Metro_TC_Value = 2
@@ -774,7 +744,7 @@ METRO_Vref_t Metro_Get_Vref(METRO_Channel_t in_Metro_Channel)
   1	1	1	1.247	        125           in_Metro_TC_Value = 7
   
   table for stpm3x (TCO is the LSB bit):
-  TC0  TC1     TC2        VREF (V)      TC_VREF (ppm/°C)
+  TC0  TC1     TC2        VREF (V)      TC_VREF (ppm/ï¿½C)
   0     0       0       1.16            -50           in_Metro_TC_Value = 0
   0     0       1       1.17            -25           in_Metro_TC_Value = 4
   0     1       0       1.18             0 (default)  in_Metro_TC_Value = 2
@@ -1049,7 +1019,7 @@ METRO_CMD_Device_t Metro_Get_Led_On_Off(METRO_NB_Device_t in_Metro_Device,METRO_
   * @brief  : Read period for the selected channel.
   * @param[in]   in_Metro_Channel (Channel ID ), CHANNEL_1 to to CHANNEL_4
   * @param[out]  None
-  * @retval U16 :  :Return Period in µs
+  * @retval U16 :  :Return Period in ï¿½s
   */
 
 /* Read period for the selected channel. LSB is 8uSec. */
@@ -1068,7 +1038,7 @@ uint16_t Metro_Read_Period(METRO_Channel_t in_Metro_Channel)
   /* Get period according to device and channel */
   period = Metro_HAL_read_period(Device,int_Channel);
   
-  /* LSB is 8 µs, so multiply by 8 to have the value in µs */
+  /* LSB is 8 ï¿½s, so multiply by 8 to have the value in ï¿½s */
   period = period * 8 ;
 
   return period;
@@ -1132,6 +1102,9 @@ int32_t Metro_Read_energy(METRO_Channel_t in_Metro_Channel,METRO_Energy_selectio
   int64_t calc_nrj = 0;
   int32_t raw_nrj = 0;
 
+  int32_t extension = 0;
+  int64_t factor1 =0;
+  int64_t factor2 =0;
   /* Get Device id from Channel to request the value from the good device */
   Device = Metro_Get_device_from_Channel(in_Metro_Channel);
 
@@ -1141,19 +1114,17 @@ int32_t Metro_Read_energy(METRO_Channel_t in_Metro_Channel,METRO_Energy_selectio
   /* Get raw nrj according to device, channel and NRJ type */
   raw_nrj = Metro_HAL_read_energy(Device,int_Channel,in_Metro_Energy_Selection);
 
+  if ( METRO_Data.energy[in_Metro_Channel][in_Metro_Energy_Selection] > raw_nrj && raw_nrj <0 )
+      		 METRO_Data.energy_extension[in_Metro_Channel][in_Metro_Energy_Selection] ++;
   /* manage the 2 U32 to have enougth place to save energy cumulated */
   /* Make sure between two reads inside hardware registers if we have to add carry inside ext U32 */
-  if ((METRO_Data.energy[in_Metro_Channel][in_Metro_Energy_Selection] > 0x60000000) && (raw_nrj < 0xA0000000))
-  {
-    METRO_Data.energy_extension[in_Metro_Channel][in_Metro_Energy_Selection] ++;
-  }
-  if ((METRO_Data.energy[in_Metro_Channel][in_Metro_Energy_Selection] < 0xA0000000) && (raw_nrj > 0x60000000))
-  {
-    METRO_Data.energy_extension[in_Metro_Channel][in_Metro_Energy_Selection] --;
-  }
+
 
   /* save the new result cumulated come from register inside internal structure */
   METRO_Data.energy[in_Metro_Channel][in_Metro_Energy_Selection] = raw_nrj;
+  extension = METRO_Data.energy_extension[in_Metro_Channel][in_Metro_Energy_Selection];
+  factor1 = (int64_t)Tab_METRO_internal_Devices_Config[Device].factor_energy_int_ch1;
+  factor2 = (int64_t)Tab_METRO_internal_Devices_Config[Device].factor_energy_int_ch2;
 
   /* calculate the nrj value and add the 32 bits extension */
   calc_nrj = (uint64_t)raw_nrj + ((int64_t)METRO_Data.energy_extension[in_Metro_Channel][in_Metro_Energy_Selection] << 32);
@@ -1446,7 +1417,7 @@ int32_t Metro_Read_PHI(METRO_Channel_t in_Metro_Channel)
   int32_t Calc_phi = 0;
   uint16_t period = 0;
   
-  /* Get period of signal , return is in µs */
+  /* Get period of signal , return is in ï¿½s */
    period = Metro_Read_Period(in_Metro_Channel);
 
   /* Get Device id from Channel */
@@ -1938,8 +1909,8 @@ overflow, power sign change and errors, generating an interrupt signal on INTx p
 the masked event is triggered.
 
 When the event is triggered, the correspondent bit is set in two registers:
-• Live event register DSP_EV1,2
-• Status (also called interrupt) register DSP_SR1,2
+ï¿½ Live event register DSP_EV1,2
+ï¿½ Status (also called interrupt) register DSP_SR1,2
 
 To output the interrupt on INTx pins, the correspondent bit should be set in the interrupt
 control mask register DSP_IRQ1,2
@@ -2488,7 +2459,7 @@ To define the time when SAG is set, if voltage signal doesn't reach value SagVal
 4 bits shift register SAG[3:0], detection of too low voltage after time the TimeValue.
 15 bits register SagTime[14:0], accumulation of time, when bit SAG[0] is set. After overflow in SagTime the event is notes in SAG.
 
-TimeofSag = TimeSag[14:0]/FClk,   Delta_time=8µs
+TimeofSag = TimeSag[14:0]/FClk,   Delta_time=8ï¿½s
 
 Overflow in the register SagTime after time:
 --------------------------------------------
@@ -2496,19 +2467,19 @@ Overflow in the register SagTime after time:
 
 With bit Clear_SS (0 --> 1) the value in registers SagTime and SAG are clear to 0.
 
-SagValue[9:0]=±VoltageForSag·2^10
+SagValue[9:0]=ï¿½VoltageForSagï¿½2^10
 
 Max VoltageForSag:
 -----------------
-VoltageForSag=(±SagValue[9:0])/2^10 =±0.999023,   Delta_value=±976·10^(-6)
+VoltageForSag=(ï¿½SagValue[9:0])/2^10 =ï¿½0.999023,   Delta_value=ï¿½976ï¿½10^(-6)
 
-TimeValue[13:0]=TimeForSag·FClk=10 ms·125kHz=1250= 14' h04E2
+TimeValue[13:0]=TimeForSagï¿½FClk=10 msï¿½125kHz=1250= 14' h04E2
 
 Min TimeValue should be 14'h0001, never 14'h0000!!!
 
 Max TimeForSag:
 --------------
-MaxTimeForSag=TimeValue[13:0]/FClk=2^14/125 kHz=131 ms,      delta_time=8µs
+MaxTimeForSag=TimeValue[13:0]/FClk=2^14/125 kHz=131 ms,      delta_time=8ï¿½s
 
 
 
@@ -2518,7 +2489,7 @@ To define the voltage level for SWELL, 10 bits register SwellValue[9:0] are used
 4 bits shift register SWELL[3:0], detection of too high voltage.
 15 bits register SwellTime[14:0], accumulation of time, when bit SWELL[0] is set. After overflow in SwellTime the event is notes in SWELL.
 
-TimeofSwell=TimeSwell[14:0]/FClk,   lsb_time=8µs
+TimeofSwell=TimeSwell[14:0]/FClk,   lsb_time=8ï¿½s
 
 Overflow in the register SwellTime after time:
 2^15/FClk=262 ms
