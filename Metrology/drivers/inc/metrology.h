@@ -397,6 +397,10 @@ typedef enum
   CHANNEL_2,
   CHANNEL_3,  
   CHANNEL_4,
+  CHANNEL_5,
+  CHANNEL_6,
+  CHANNEL_7,
+  CHANNEL_8,
   NB_MAX_CHANNEL  
 }METRO_Channel_t; 
 
@@ -500,8 +504,12 @@ typedef struct
 #define    CHANNEL_MASK_CONF_CHANNEL_2     0x02
 #define    CHANNEL_MASK_CONF_CHANNEL_3     0x04
 #define    CHANNEL_MASK_CONF_CHANNEL_4     0x08
-  
-#define    NB_NAX_CHANNEL                   3
+#define    CHANNEL_MASK_CONF_CHANNEL_5     0x10
+#define    CHANNEL_MASK_CONF_CHANNEL_6     0x20
+#define    CHANNEL_MASK_CONF_CHANNEL_7     0x40
+#define    CHANNEL_MASK_CONF_CHANNEL_8     0x80
+
+#define    NB_NAX_CHANNEL                   9
  
 #define    DEVICE_MASK_CONF                0x0F
 #define    CHANNEL_MASK_CONF               0xF0
