@@ -24,7 +24,7 @@
 *******************************************************************************/
 #include "stpm_metrology.h"
 #include "metrology.h"
-#include "metroTask.h"
+//#include "metroTask.h"
 #include "nvram.h"
 
 
