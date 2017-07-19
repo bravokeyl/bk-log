@@ -60,23 +60,47 @@
 #define BK_LED_RED_GPIO_Port GPIOD
 
 /* USER CODE BEGIN Private defines */
-#define SCS_B_Pin GPIO_PIN_0
+/* for device 1, USART6. see line 191 in handler_metrology.c */
+
+#define EN_A_Pin GPIO_PIN_0
+#define EN_A_GPIO_Port GPIOB
+
+#define SCS_A_Pin GPIO_PIN_1
+#define SCS_A_GPIO_Port GPIOB
+
+#define SYN_A_Pin GPIO_PIN_2
+#define SYN_A_GPIO_Port GPIOB
+
+/* for device 2, USART1*/
+#define EN_B_Pin GPIO_PIN_8
+#define EN_B_GPIO_Port GPIOA
+
+#define SCS_B_Pin GPIO_PIN_9
 #define SCS_B_GPIO_Port GPIOA
 
-#define SYN_B_Pin GPIO_PIN_1
+#define SYN_B_Pin GPIO_PIN_10
 #define SYN_B_GPIO_Port GPIOA
 
-#define EN_B_Pin GPIO_PIN_3
-#define EN_B_GPIO_Port GPIOC
 
-#define EN_C_Pin GPIO_PIN_13
+/* for device 3, USART2 */
+#define EN_C_Pin GPIO_PIN_3
 #define EN_C_GPIO_Port GPIOE
 
-#define SCS_C_Pin GPIO_PIN_14
+#define SCS_C_Pin GPIO_PIN_4
 #define SCS_C_GPIO_Port GPIOE
 
-#define SYN_C_Pin GPIO_PIN_15
+#define SYN_C_Pin GPIO_PIN_5
 #define SYN_C_GPIO_Port GPIOE
+
+/* for device 4, USART3 */
+#define EN_D_Pin GPIO_PIN_13
+#define EN_D_GPIO_Port GPIOE
+
+#define SCS_D_Pin GPIO_PIN_14
+#define SCS_D_GPIO_Port GPIOE
+
+#define SYN_D_Pin GPIO_PIN_15
+#define SYN_D_GPIO_Port GPIOE
 
 #define LED5_Pin GPIO_PIN_14
 #define LED5_GPIO_Port GPIOD
@@ -92,6 +116,17 @@
 
 #define SYN_A_Pin GPIO_PIN_2
 #define SYN_A_GPIO_Port GPIOB
+
+/* for device 4, USART3 */
+#define EN_D_Pin GPIO_PIN_13
+#define EN_D_GPIO_Port GPIOE
+
+#define SCS_D_Pin GPIO_PIN_14
+#define SCS_D_GPIO_Port GPIOE
+
+#define SYN_D_Pin GPIO_PIN_15
+#define SYN_D_GPIO_Port GPIOE
+
 /* USER CODE END Private defines */
 
 void _Error_Handler(char *, int);

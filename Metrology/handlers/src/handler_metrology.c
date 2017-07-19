@@ -82,7 +82,7 @@ const nvmLeg_t metroDefaultNvm = {
   PLTF_STM32_METER, // crc
   {                 // config
     0x00000005,
-    0x00000038
+    0x00000000
   },
   {                 // data1[19] STPM (Config for CT)
     0x040000a0,
@@ -101,8 +101,8 @@ const nvmLeg_t metroDefaultNvm = {
     0x03270327,
     0x00000000,
     0x00000000,
-    0x0207776F,//0x00000000,
-    0x02000000,//0x00000000,
+    0x00000000,//0x00000000,
+    0x00000000,//0x00000000,
     0x00004007,
   },
   {                 // data2[19] STPM (Config for CT)
@@ -168,21 +168,21 @@ const nvmLeg_t metroDefaultNvm = {
     0x00000000,
     0x00004007,
   },
-  {               // powerFact[4]
+  {               // powerFact[8]
     30154605,     // ch 1
     30154605,     // ch 2
     30154605,     // ch 3
-    30154605,      // ch 4
-	30154605,     // ch 1
-	30154605,     // ch 2
-	30154605,     // ch 3
-	30154605      // ch 4
+    30154605,     // ch 4
+	30154605,     // ch 5
+	30154605,     // ch 6
+	30154605,     // ch 7
+	30154605      // ch 8
   },
-  {               // voltageFact[4]
+  {               // voltageFact[8]
     116274,       // ch 1
     116274,       // ch 2
     116274,       // ch 3
-    116274,        // ch 4
+    116274,       // ch 4
 	116274,       // ch 5
 	116274,       // ch 6
 	116274,       // ch 7
@@ -192,7 +192,11 @@ const nvmLeg_t metroDefaultNvm = {
     25934,        // ch 1
     25934,        // ch 2
     25934,        // ch 3
-    25934         // ch 4
+    25934,        // ch 4
+	25934,        // ch 5
+	25934,        // ch 6
+	25934,        // ch 7
+	25934         // ch 8
   }
 };
 
@@ -200,26 +204,17 @@ const nvmLeg_t metroDefaultNvm = {
 
 const STPM_Com_port_t STPM_com_port[4] ={
   {
-    USART6,     //USART used by device 2
-    SCS_A_GPIO_Port,      //CS used by device 2
+    USART6,               //USART used by device 1
+    SCS_A_GPIO_Port,      //CS used by device 1
     SCS_A_Pin,
-    SYN_A_GPIO_Port,      //SYN used by device 2
+    SYN_A_GPIO_Port,      //SYN used by device 1
     SYN_A_Pin,
-    EN_A_GPIO_Port,      //EN used by device 2
+    EN_A_GPIO_Port,      //EN used by device 1
     EN_A_Pin
     },
-  {
-  USART6,    //USART used by device 1
-  SCS_C_GPIO_Port,     //CS used by device 1
-  SCS_C_Pin,
-  SYN_C_GPIO_Port,     //SYN used by device 1
-  SYN_C_Pin,
-  EN_C_GPIO_Port,     //EN used by device 1
-  EN_C_Pin
-  },
 
   {
-  USART2,    //USART used by device 3
+  USART1,    //USART used by device 2
   SCS_B_GPIO_Port,      //CS used by device 3
   SCS_B_Pin,
   SYN_B_GPIO_Port,      //SYN used by device 3
@@ -228,13 +223,22 @@ const STPM_Com_port_t STPM_com_port[4] ={
   EN_B_Pin
   },
   {
-  USART2,    //USART used by device 4
-  GPIOA,     //CS used by device 4
-  GPIO_PIN_0,
-  GPIOA,     //SYN used by device 4
-  GPIO_PIN_1,
-  GPIOC,     //EN used by device 4
-  GPIO_PIN_3
+    USART2,    //USART used by device 3
+    SCS_C_GPIO_Port,     //CS used by device 2
+    SCS_C_Pin,
+    SYN_C_GPIO_Port,     //SYN used by device 2
+    SYN_C_Pin,
+    EN_C_GPIO_Port,     //EN used by device 2
+    EN_C_Pin
+    },
+  {
+	USART3,    //USART used by device 4
+	SCS_D_GPIO_Port,     //CS used by device 4
+	SCS_D_Pin,
+	SYN_D_GPIO_Port,     //SYN used by device 4
+	SYN_D_Pin,
+	EN_D_GPIO_Port,     //EN used by device 4
+	EN_D_Pin
   }
 };
 #endif
