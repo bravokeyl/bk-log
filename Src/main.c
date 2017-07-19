@@ -176,17 +176,15 @@ int main(void)
 			  f_lseek(&logFile,f_size(&logFile));
 
 			  while(1){
-				  uint32_t RMS_V=0,RMS_V2=0;
-				  uint32_t RMS_I=0,RMS_I2=0;
-				  int32_t Period=0, Period2=0;
+				  uint32_t RMS_V=0;
+				  uint32_t RMS_I=0;
+				  int32_t Period=0;
 				  int32_t POW_ACT,POW_REACT,POW_APP;
-				  int32_t POW_ACT2,POW_REACT2,POW_APP2;
 				  int32_t EN_ACT,EN_REACT,EN_APP;
-				  int32_t EN_ACT2,EN_REACT2,EN_APP2;
 
 				  HAL_I2C_Mem_Read_DMA(&hi2c1,DS3231_SLAVE_ADDRESS <<1,0,I2C_MEMADD_SIZE_8BIT,receiveData, 7);
 				  HAL_Delay(20);
-				  sprintf(timestamp,"%02d-%02d-%d#%02d:%02d:%02d",date,month,year,hours,minutes,seconds+1);
+				  sprintf(timestamp,"%02d-%02d-%d#%02d:%02d:%02d",date,month,year,hours,minutes,seconds);
 
 				  if (metroData.metroInactiveTime >= METRO_TIMER) {
 					metroData.metroInactiveTime = 0;
@@ -196,7 +194,7 @@ int main(void)
 					METRO_Get_Measures();
 					METRO_UpdateData();
 
-					for(BYTE d=1;d<7;d++){
+					for(BYTE d=1;d<3;d++){
 						Metro_Read_RMS(d,&RMS_V,&RMS_I,1);
 						Period = Metro_Read_Period(d);
 						EN_ACT = Metro_Read_energy(d,E_W_ACTIVE);
@@ -216,7 +214,7 @@ int main(void)
 								Period);
 						sdRes =f_write(&logFile, buf, strlen(buf), (void *)&byteswritten);
 						HAL_UART_Transmit(&huart3,buf,strlen(buf),100);
-						if(d != 6){
+						if(d != 2){
 							HAL_Delay(100);
 						}
 					}
